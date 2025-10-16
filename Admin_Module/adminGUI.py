@@ -10,3 +10,4 @@ class AdminGUI:
         label.pack(pady=50)
         self.window.mainloop()
 #dummy comment
+#dummy comment 2
