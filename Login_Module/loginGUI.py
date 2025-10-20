@@ -13,7 +13,7 @@ class LoginGUI:
         self.master = master
         self.master.geometry("500x550")
         self.master.title("Login Page")
-        self.master.resizable(0, 0)
+        self.master.resizable(0,0)
 
         self.db = DBAuth()
 
