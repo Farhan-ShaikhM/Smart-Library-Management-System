@@ -1,7 +1,10 @@
 from customtkinter import *
 from tkinter import messagebox
 
+from Reader_Module.historyGUI import HistoryGUI
 from Reader_Module.readerFunctionality import get_reader_data, return_book, get_recommendations
+from Reader_Module.recommendGUI import RecommendGUI
+from Reader_Module.returnGUI import ReturnGUI
 
 set_appearance_mode("dark")
 
@@ -64,6 +67,9 @@ class ReaderGUI:
             wraplength=200
         )
         self.user_remark_label.pack(pady=(0,20), padx=20)
+
+        self.history_button = CTkButton(self.left_frame,text="🧾 Show history",font=("Arial", 18, "bold"),width=150, height=60, corner_radius=15,command=lambda: HistoryGUI( self.reader_data['u_Id']))
+        self.history_button.pack(pady=20, padx=20)
 
         # ---------------- Right area ----------------
         self.right_frame = CTkFrame(self.main_frame, corner_radius=15)
@@ -172,10 +178,9 @@ class ReaderGUI:
 
     def return_book(self):
         u_Id = self.reader_data['u_Id']
-        return_book(u_Id, loan_id=None)
-        messagebox.showinfo("Return", "Return Book feature coming soon!")
+        self.root.destroy()
+        ReturnGUI(u_Id)
 
     def show_recommendations(self):
         u_Id = self.reader_data['u_Id']
-        recommendations = get_recommendations(u_Id)
-        messagebox.showinfo("Recommendations", "Recommendations feature coming soon!")
+        RecommendGUI(u_Id)
