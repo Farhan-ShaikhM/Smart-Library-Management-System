@@ -1,5 +1,4 @@
 from customtkinter import *
-from tkinter import messagebox
 from .registrationFunctionality import RegistrationFunctionality
 
 class RegistrationGUI:
