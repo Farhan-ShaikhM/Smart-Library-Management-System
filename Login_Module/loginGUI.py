@@ -62,8 +62,9 @@ class LoginGUI:
         if success:
             self.master.destroy()
             role = result['role']
+            u_id = result['u_Id']
             if role == "Reader":
-                ReaderGUI()
+                ReaderGUI(u_id)
             elif role == "Librarian":
                 LibrarianGUI()
             elif role == "Admin":
