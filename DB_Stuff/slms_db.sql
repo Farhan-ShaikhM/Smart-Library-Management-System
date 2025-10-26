@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 12, 2025 at 01:29 PM
+-- Generation Time: Oct 26, 2025 at 09:34 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -47,15 +47,15 @@ CREATE TABLE `books` (
 
 INSERT INTO `books` (`b_Id`, `title`, `author`, `main_genre`, `sub_genre`, `language`, `available_stock`, `total_stock`, `price`, `aggregate_rating`, `daily_late_fine`) VALUES
 (1, 'It Ends with Us', 'Colleen Hoover', 'Romance', 'Contemporary', 'English', 8, 10, 499.00, 4.5, 10.00),
-(2, 'The Hound of the Baskervilles', 'Arthur Conan Doyle', 'Mystery', 'Detective Fiction', 'English', 5, 7, 299.00, 4.7, 15.00),
+(2, 'The Hound of the Baskervilles', 'Arthur Conan Doyle', 'Mystery', 'Detective Fiction', 'English', 6, 7, 299.00, 4.7, 15.00),
 (3, '1984', 'George Orwell', 'Dystopian', 'Political Fiction', 'English', 6, 8, 350.00, 4.8, 12.00),
 (4, 'To Kill a Mockingbird', 'Harper Lee', 'Classic', 'Historical Fiction', 'English', 7, 10, 400.00, 4.9, 15.00),
 (5, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Classic', 'Tragedy', 'English', 4, 6, 320.00, 4.6, 10.00),
 (6, 'Harry Potter and the Sorcerer\'s Stone', 'J.K. Rowling', 'Fantasy', 'Adventure', 'English', 10, 12, 550.00, 4.9, 20.00),
 (7, 'The Fault in Our Stars', 'John Green', 'Romance', 'Young Adult', 'English', 9, 10, 450.00, 4.4, 10.00),
 (8, 'The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 'Adventure', 'English', 6, 8, 499.00, 4.8, 15.00),
-(9, 'Pride and Prejudice', 'Jane Austen', 'Classic', 'Romance', 'English', 5, 7, 375.00, 4.7, 10.00),
-(10, 'The Alchemist', 'Paulo Coelho', 'Philosophical', 'Adventure', 'English', 8, 9, 425.00, 4.6, 12.00);
+(9, 'Pride and Prejudice', 'Jane Austen', 'Classic', 'Romance', 'English', 4, 7, 375.00, 4.7, 10.00),
+(10, 'The Alchemist', 'Paulo Coelho', 'Philosophical', 'Adventure', 'English', 7, 9, 425.00, 4.6, 12.00);
 
 -- --------------------------------------------------------
 
@@ -103,11 +103,20 @@ CREATE TABLE `loan_record` (
 INSERT INTO `loan_record` (`loan_id`, `u_Id`, `b_Id`, `librarian_id`, `issue_date`, `due_date`, `return_date`, `fine_amount`, `loan_status`) VALUES
 (1, 1, 1, 101, '2025-09-01 04:30:00', '2025-09-10', '2025-09-12 10:00:00', 20.00, 'Returned - Late'),
 (2, 1, 3, 102, '2025-09-15 04:00:00', '2025-09-25', '2025-09-25 11:30:00', 0.00, 'Returned - On Time'),
-(3, 2, 2, 101, '2025-10-01 05:30:00', '2025-10-10', NULL, 0.00, 'Active'),
+(3, 2, 2, 101, '2025-10-01 05:30:00', '2025-10-10', '2025-10-22 09:45:37', 180.00, 'Returned - Late'),
 (4, 3, 4, 102, '2025-09-20 08:30:00', '2025-09-30', '2025-09-29 10:30:00', 0.00, 'Returned - On Time'),
 (5, 4, 5, 101, '2025-08-01 03:30:00', '2025-08-10', '2025-08-15 04:30:00', 50.00, 'Returned - Late'),
 (6, 4, 6, 102, '2025-09-05 06:30:00', '2025-09-15', NULL, 0.00, 'Active'),
-(7, 4, 7, 101, '2025-07-01 04:30:00', '2025-07-10', '2025-07-15 04:30:00', 500.00, 'Lost');
+(7, 4, 7, 101, '2025-07-01 04:30:00', '2025-07-10', '2025-07-15 04:30:00', 500.00, 'Lost'),
+(8, 1, 9, NULL, '2025-10-22 06:49:00', '2025-11-05', NULL, 0.00, 'Active'),
+(9, 1, 10, NULL, '2025-10-22 06:49:17', '2025-11-05', NULL, 0.00, 'Active'),
+(10, 2, 6, NULL, '2025-10-24 06:43:44', '2025-11-07', '2025-10-24 06:53:41', 0.00, 'Returned - On Time'),
+(11, 2, 3, NULL, '2025-10-26 07:37:50', '2025-11-05', '2025-10-26 07:38:40', 0.00, 'Returned - On Time'),
+(12, 2, 3, NULL, '2025-10-26 07:40:24', '2025-11-05', '2025-10-26 07:40:41', 0.00, 'Returned - On Time'),
+(13, 2, 3, NULL, '2025-10-26 07:44:36', '2025-11-05', '2025-10-26 07:44:40', 0.00, 'Returned - On Time'),
+(14, 2, 6, NULL, '2025-10-26 07:49:08', '2025-11-05', '2025-10-26 07:49:13', 0.00, 'Returned - On Time'),
+(15, 2, 1, NULL, '2025-10-26 07:51:53', '2025-11-05', '2025-10-26 07:52:05', 0.00, 'Returned - On Time'),
+(16, 2, 3, NULL, '2025-10-26 08:04:35', '2025-11-05', '2025-10-26 08:04:43', 0.00, 'Returned - On Time');
 
 -- --------------------------------------------------------
 
@@ -118,9 +127,19 @@ INSERT INTO `loan_record` (`loan_id`, `u_Id`, `b_Id`, `librarian_id`, `issue_dat
 CREATE TABLE `personal_rating` (
   `u_Id` int(11) NOT NULL,
   `b_Id` int(11) NOT NULL,
-  `rating_value` int(11) NOT NULL CHECK (`rating_value` between 1 and 5),
+  `rating_value` decimal(2,1) NOT NULL,
   `rating_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `personal_rating`
+--
+
+INSERT INTO `personal_rating` (`u_Id`, `b_Id`, `rating_value`, `rating_date`) VALUES
+(2, 1, 3.2, '2025-10-26 07:52:11'),
+(2, 2, 4.6, '2025-10-22 09:45:48'),
+(2, 3, 4.9, '2025-10-26 08:04:55'),
+(2, 6, 4.3, '2025-10-26 07:49:18');
 
 -- --------------------------------------------------------
 
@@ -142,8 +161,8 @@ CREATE TABLE `reader` (
 --
 
 INSERT INTO `reader` (`u_Id`, `phone`, `date_joined`, `current_loan_count`, `overdue_fines`, `user_remark`) VALUES
-(1, '9876543210', '2024-02-15', 2, 0.00, 'Active reader, always returns books on time.'),
-(2, '9123456789', '2023-09-10', 1, 1.50, 'Recently returned a book late, fine cleared.'),
+(1, '9876543210', '2024-02-15', 4, 0.00, 'Active reader, always returns books on time.'),
+(2, '9123456789', '2023-09-10', 0, 181.50, 'Recently returned a book late, fine cleared.'),
 (3, '9988776655', '2024-05-21', 0, 0.00, 'Prefers e-books and light novels.'),
 (4, '9001122334', '2022-12-30', 3, 5.00, 'Occasionally delays returns due to travel.');
 
@@ -196,16 +215,16 @@ ALTER TABLE `librarian`
 --
 ALTER TABLE `loan_record`
   ADD PRIMARY KEY (`loan_id`),
-  ADD KEY `u_Id` (`u_Id`),
-  ADD KEY `b_Id` (`b_Id`),
-  ADD KEY `librarian_id` (`librarian_id`);
+  ADD KEY `loan_record_ibfk_1` (`u_Id`),
+  ADD KEY `loan_record_ibfk_2` (`b_Id`),
+  ADD KEY `loan_record_ibfk_3` (`librarian_id`);
 
 --
 -- Indexes for table `personal_rating`
 --
 ALTER TABLE `personal_rating`
   ADD PRIMARY KEY (`u_Id`,`b_Id`),
-  ADD KEY `b_Id` (`b_Id`);
+  ADD KEY `personal_rating_ibfk_2` (`b_Id`);
 
 --
 -- Indexes for table `reader`
@@ -240,7 +259,7 @@ ALTER TABLE `loan_record`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `u_Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
+  MODIFY `u_Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
 
 --
 -- Constraints for dumped tables
@@ -250,28 +269,28 @@ ALTER TABLE `users`
 -- Constraints for table `librarian`
 --
 ALTER TABLE `librarian`
-  ADD CONSTRAINT `librarian_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `users` (`u_Id`);
+  ADD CONSTRAINT `librarian_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `users` (`u_Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `loan_record`
 --
 ALTER TABLE `loan_record`
-  ADD CONSTRAINT `loan_record_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `reader` (`u_Id`),
-  ADD CONSTRAINT `loan_record_ibfk_2` FOREIGN KEY (`b_Id`) REFERENCES `books` (`b_Id`),
-  ADD CONSTRAINT `loan_record_ibfk_3` FOREIGN KEY (`librarian_id`) REFERENCES `librarian` (`u_Id`);
+  ADD CONSTRAINT `loan_record_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `reader` (`u_Id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `loan_record_ibfk_2` FOREIGN KEY (`b_Id`) REFERENCES `books` (`b_Id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `loan_record_ibfk_3` FOREIGN KEY (`librarian_id`) REFERENCES `librarian` (`u_Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `personal_rating`
 --
 ALTER TABLE `personal_rating`
-  ADD CONSTRAINT `personal_rating_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `reader` (`u_Id`),
-  ADD CONSTRAINT `personal_rating_ibfk_2` FOREIGN KEY (`b_Id`) REFERENCES `books` (`b_Id`);
+  ADD CONSTRAINT `personal_rating_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `reader` (`u_Id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `personal_rating_ibfk_2` FOREIGN KEY (`b_Id`) REFERENCES `books` (`b_Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `reader`
 --
 ALTER TABLE `reader`
-  ADD CONSTRAINT `reader_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `users` (`u_Id`);
+  ADD CONSTRAINT `reader_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `users` (`u_Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
