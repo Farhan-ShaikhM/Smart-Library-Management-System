@@ -68,8 +68,13 @@ class ReaderGUI:
         )
         self.user_remark_label.pack(pady=(0,20), padx=20)
 
-        self.history_button = CTkButton(self.left_frame,text="🧾 Show history",font=("Arial", 18, "bold"),width=150, height=60, corner_radius=15,command=lambda: HistoryGUI( self.reader_data['u_Id']))
-        self.history_button.pack(pady=20, padx=20)
+        self.history_button = CTkButton(self.left_frame,text="🧾 Show history",font=("Arial", 18, "bold"),width=150, height=40, corner_radius=15,command=lambda: HistoryGUI( self.reader_data['u_Id']))
+        self.history_button.pack(pady=20, padx=20,fill="x")
+
+        self.logout_button = CTkButton(self.left_frame, text="⬅️ Logout", font=("Arial", 18, "bold"), width=150,
+                                        height=40, corner_radius=15,
+                                        command=lambda:self.logout(self.root) )
+        self.logout_button.pack(pady=20, padx=20, fill="x")
 
         # ---------------- Right area ----------------
         self.right_frame = CTkFrame(self.main_frame, corner_radius=15)
@@ -184,3 +189,10 @@ class ReaderGUI:
     def show_recommendations(self):
         u_Id = self.reader_data['u_Id']
         RecommendGUI(u_Id)
+
+    def logout(self, window):
+        from Login_Module.loginGUI import LoginGUI
+        window.destroy()
+        root = CTk()
+        app = LoginGUI(root)
+        root.mainloop()
