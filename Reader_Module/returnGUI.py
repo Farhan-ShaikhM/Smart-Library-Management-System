@@ -140,13 +140,13 @@ class ReturnGUI:
         if success:
             messagebox.showinfo("Success", f"Book processed successfully!\nTotal Fine: {fine_or_msg:.2f} units")
             self.root.destroy()
-            from Reader_Module.readerGUI import ReaderGUI  # Avoid circular import
-            ReaderGUI(self.u_Id)  # Open ReaderGUI with the current user ID
+            from Reader_Module.readerGUI import ReaderGUI
+            ReaderGUI(self.u_Id)
         else:
             messagebox.showerror("Error", f"Failed to process book: {fine_or_msg}")
 
     def go_back(self):
-        from Reader_Module.readerGUI import ReaderGUI  # Avoid circular import
+        from Reader_Module.readerGUI import ReaderGUI
         self.root.destroy()
         ReaderGUI(self.u_Id)
 

@@ -18,9 +18,6 @@ def get_connection():
 
 # ---------------- Fetch borrowed books for user ----------------
 def get_user_borrowed_books_with_dates(u_Id):
-    """
-    Returns a list of dictionaries with book info for books currently borrowed by user
-    """
     conn = get_connection()
     if conn is None:
         return []
@@ -38,9 +35,6 @@ def get_user_borrowed_books_with_dates(u_Id):
 
 # ---------------- Return a book ----------------
 def return_book(u_Id, b_Id, rating, status, return_date=None):
-    """
-    Marks a book as returned or lost, updates stock, calculates fine, stores rating
-    """
     conn = get_connection()
     if conn is None:
         return False, "Database connection failed"

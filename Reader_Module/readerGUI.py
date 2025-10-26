@@ -177,7 +177,7 @@ class ReaderGUI:
 
     # ---------------- Functional buttons ----------------
     def borrow_book(self):
-        from Reader_Module.borrowGUI import BorrowGUI  # ✅ local import avoids circular issue
+        from Reader_Module.borrowGUI import BorrowGUI
         self.root.destroy()
         BorrowGUI(self.reader_data['u_Id'])
 
