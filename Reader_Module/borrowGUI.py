@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from customtkinter import *
 from tkinter import messagebox
 import threading
@@ -15,7 +17,7 @@ class BorrowGUI:
         # ---------------- Main window ----------------
         self.root = CTk()
         self.root.title("Borrow a Book")
-        self.root.geometry("950x600")
+        self.root.geometry("950x700")
         self.root.resizable(False, False)
 
         # ---------------- Search bar ----------------
@@ -51,11 +53,11 @@ class BorrowGUI:
             self.root,
             text="⬅ Back to Home",
             width=200,
-            height=40,
+            height=50,
             font=("Arial", 16, "bold"),
             command=self.back_to_home
         )
-        self.back_button.pack(pady=(0, 10))
+        self.back_button.pack(pady=20)
 
         # ---------------- Load books ----------------
         self.books = get_available_books()
@@ -74,13 +76,16 @@ class BorrowGUI:
     def display_books(self, books):
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
+        self.return_label = CTkLabel(self.scroll_frame, text="Please return within 10 days from borrowing", font=("Arial", 18, "bold"),anchor="n")
+        self.return_label.pack(pady=20,fill="x")
+
 
         if not books:
             CTkLabel(self.scroll_frame, text="No books found.", font=("Arial", 16, "italic")).pack(pady=20)
             return
 
         for book in books:
-            card = CTkFrame(self.scroll_frame, corner_radius=15)
+            card = CTkFrame(self.scroll_frame, corner_radius=15, fg_color="gray")
             card.pack(fill="x", padx=20, pady=10)
 
             # -------- Title --------
@@ -91,7 +96,7 @@ class BorrowGUI:
                 anchor="w",
                 justify="left"
             )
-            title_label.grid(row=0, column=0, sticky="w", padx=15, pady=(10, 5))
+            title_label.grid(row=0, column=0, sticky="w", padx=20, pady=(20,10))
 
             # -------- Author, Genre, Rating, Stock --------
             details_text = (
@@ -107,7 +112,7 @@ class BorrowGUI:
                 justify="left",
                 anchor="w"
             )
-            details_label.grid(row=1, column=0, sticky="w", padx=15, pady=5)
+            details_label.grid(row=1, column=0, sticky="w", padx=20, pady=(0,20))
 
             # -------- See Summary --------
             summary_label = CTkLabel(
@@ -141,8 +146,11 @@ class BorrowGUI:
     # ---------------- Borrow book ----------------
     def borrow_book(self, book):
         result = borrow_book_for_user(self.u_Id, book["b_Id"])
+        issue_date = datetime.now()
+        due_date = issue_date + timedelta(days=10)
+        self.books = get_available_books()
         if result:
-            messagebox.showinfo("Success", f"You successfully borrowed '{book['title']}'!")
+            messagebox.showinfo("Success", f"You successfully borrowed '{book['title']}'! \n Please Return by: {due_date.strftime('%d-%m-%Y')}")
             self.borrowed_books = get_user_borrowed_books(self.u_Id)
             self.display_books(self.books)
         else:
@@ -214,3 +222,5 @@ class BorrowGUI:
         from Reader_Module.readerGUI import ReaderGUI  # Local import avoids circular import
         self.root.destroy()
         ReaderGUI(self.u_Id)
+
+#b1 = BorrowGUI(2)

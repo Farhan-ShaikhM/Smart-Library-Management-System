@@ -50,7 +50,7 @@ def borrow_book_for_user(u_Id, b_Id):
 
         # Insert loan record
         issue_date = datetime.now()
-        due_date = issue_date + timedelta(days=14)
+        due_date = issue_date + timedelta(days=10)
         cursor.execute("""
             INSERT INTO Loan_Record (u_Id, b_Id, issue_date, due_date, loan_status)
             VALUES (%s, %s, %s, %s, 'Active')
