@@ -1,0 +1,11 @@
+CREATE TABLE Users ( u_Id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255) NOT NULL, email VARCHAR(255) UNIQUE NOT NULL, password VARCHAR(255) NOT NULL, date_of_birth DATE, role ENUM('Reader', 'Librarian', 'Admin') NOT NULL ); 
+
+CREATE TABLE Reader ( u_Id INT PRIMARY KEY, phone VARCHAR(20), date_joined DATE NOT NULL DEFAULT (CURRENT_DATE), current_loan_count INT DEFAULT 0 CHECK (current_loan_count >= 0), overdue_fines DECIMAL(6,2) DEFAULT 0.00 CHECK (overdue_fines >= 0.00), user_remark TEXT, FOREIGN KEY (u_Id) REFERENCES Users(u_Id) );
+
+CREATE TABLE Librarian ( u_Id INT PRIMARY KEY, address TEXT, phone VARCHAR(20), date_created DATE NOT NULL DEFAULT (CURRENT_DATE), FOREIGN KEY (u_Id) REFERENCES Users(u_Id) );
+
+CREATE TABLE Books ( b_Id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, author VARCHAR(255) NOT NULL, main_genre VARCHAR(100), sub_genre VARCHAR(100), language VARCHAR(50), available_stock INT NOT NULL CHECK (available_stock >= 0), total_stock INT NOT NULL CHECK (total_stock >= available_stock AND total_stock > 0), price DECIMAL(8, 2) CHECK (price >= 0), aggregate_rating DECIMAL(2, 1) DEFAULT 0.0 CHECK (aggregate_rating BETWEEN 0.0 AND 5.0), daily_late_fine DECIMAL(4, 2) DEFAULT 0.50 CHECK (daily_late_fine >= 0.00) );
+
+CREATE TABLE Personal_Rating ( u_Id INT NOT NULL, b_Id INT NOT NULL, rating_value INT NOT NULL CHECK (rating_value BETWEEN 1 AND 5), rating_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (u_Id, b_Id), FOREIGN KEY (u_Id) REFERENCES Reader(u_Id), FOREIGN KEY (b_Id) REFERENCES Books(b_Id) );
+
+CREATE TABLE Loan_Record ( loan_id INT AUTO_INCREMENT PRIMARY KEY, u_Id INT NOT NULL, b_Id INT NOT NULL, librarian_id INT, issue_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, due_date DATE NOT NULL, return_date TIMESTAMP NULL DEFAULT NULL, fine_amount DECIMAL(6,2) DEFAULT 0.00 CHECK (fine_amount >= 0.00), loan_status ENUM('Active', 'Returned - On Time', 'Returned - Late', 'Lost') NOT NULL, CONSTRAINT date_order CHECK (due_date >= DATE(issue_date)), CONSTRAINT return_logic CHECK ( (loan_status = 'Active' AND return_date IS NULL) OR (loan_status IN ('Returned - On Time', 'Returned - Late') AND return_date IS NOT NULL) OR (loan_status = 'Lost') ), FOREIGN KEY (u_Id) REFERENCES Reader(u_Id), FOREIGN KEY (b_Id) REFERENCES Books(b_Id), FOREIGN KEY (librarian_id) REFERENCES Librarian(u_Id) );
