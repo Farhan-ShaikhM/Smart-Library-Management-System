@@ -13,7 +13,7 @@ class HistoryGUI:
         # ---------------- Main window ----------------
         self.window = CTkToplevel()
         self.window.title("Borrowing History")
-        self.window.geometry("700x500")
+        self.window.geometry("700x600")
         self.window.resizable(False, False)
 
         # Bring window to front
@@ -37,7 +37,7 @@ class HistoryGUI:
             return
 
         for rec in self.records:
-            card = CTkFrame(self.scroll_frame, corner_radius=15)
+            card = CTkFrame(self.scroll_frame, corner_radius=15,fg_color="gray")
             card.pack(fill="x", padx=10, pady=8)
 
             # Title and author
