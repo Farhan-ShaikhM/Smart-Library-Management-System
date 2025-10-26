@@ -222,5 +222,3 @@ class BorrowGUI:
         from Reader_Module.readerGUI import ReaderGUI  # Local import avoids circular import
         self.root.destroy()
         ReaderGUI(self.u_Id)
-
-#b1 = BorrowGUI(2)

@@ -9,6 +9,4 @@ class LibrarianGUI:
         label = CTkLabel(self.window, text="Welcome, Librarian!", font=("Arial", 20))
         label.pack(pady=50)
 
-        # Placeholder for Librarian functionalities (issue books, manage inventory)
-
         self.window.mainloop()

@@ -9,5 +9,3 @@ class AdminGUI:
         label = CTkLabel(self.window, text="Welcome, Admin!", font=("Arial", 20))
         label.pack(pady=50)
         self.window.mainloop()
-#dummy comment
-#dummy comment 2
