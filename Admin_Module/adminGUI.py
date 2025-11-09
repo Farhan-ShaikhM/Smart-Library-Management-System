@@ -171,15 +171,25 @@ class AdminGUI:
         )
         self.register_librarian_btn.pack(pady=20)
 
-        self.manage_books_btn = CTkButton(
+        self.register_vendor_btn = CTkButton(
             self.buttons_frame,
-            text="📚 Manage Books",
+            text="➕ Register New Vendor",
             font=("Arial", 18, "bold"),
             width=btn_width,
             height=btn_height,
-            command=self.open_manage_books
+            command=self.open_vendor_librarian
         )
-        self.manage_books_btn.pack(pady=20)
+        self.register_vendor_btn.pack(pady=20)
+
+        # self.manage_books_btn = CTkButton(
+        #     self.buttons_frame,
+        #     text="📚 Manage Books",
+        #     font=("Arial", 18, "bold"),
+        #     width=btn_width,
+        #     height=btn_height,
+        #     command=self.open_manage_books
+        # )
+        # self.manage_books_btn.pack(pady=20)
 
         # --- Footer ---
         self.footer_frame = CTkFrame(self.right_frame)
@@ -197,28 +207,24 @@ class AdminGUI:
         self.active_loans_label.configure(text=f"Active Loans:\n{self.stats.get('overall_active_loans', 0)}")
 
     def open_manage_users(self):
-        try:
             from Admin_Module.manageUsersGUI import ManageUsersGUI
             self.root.destroy()
             ManageUsersGUI(self.u_Id)
-        except Exception as e:
-            messagebox.showinfo("Manage Users", f"Manage Users GUI not implemented yet.\n{e}")
 
     def open_register_librarian(self):
-        try:
             from Admin_Module.registerLibrarianGUI import RegisterLibrarianGUI
             self.root.destroy()
             RegisterLibrarianGUI(self.u_Id)
-        except Exception as e:
-            messagebox.showinfo("Register Librarian", f"Register Librarian GUI not implemented yet.\n{e}")
 
-    def open_manage_books(self):
-        try:
-            from Admin_Module.manageBooksGUI import ManageBooksGUI
-            self.root.destroy()
-            ManageBooksGUI(self.u_Id)
-        except Exception as e:
-            messagebox.showinfo("Manage Books", f"Manage Books GUI not implemented yet.\n{e}")
+    # def open_manage_books(self):
+    #         from Admin_Module.manageBooksGUI import ManageBooksGUI
+    #         self.root.destroy()
+    #         ManageBooksGUI(self.u_Id)
+
+    def open_vendor_librarian(self):
+        from Admin_Module.registerVendorGUI import RegisterVendorGUI
+        self.root.destroy()
+        RegisterVendorGUI(self.u_Id)
 
     def logout(self, window):
         try:

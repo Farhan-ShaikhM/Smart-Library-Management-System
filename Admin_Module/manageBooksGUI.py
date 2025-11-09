@@ -416,5 +416,3 @@ class AddBookWindow:
             self.close()
         else:
             self.show_error("Database Error", f"Failed to add book:\n{res}")
-
-c1 = ManageBooksGUI()

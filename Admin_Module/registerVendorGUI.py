@@ -1,10 +1,12 @@
-from customtkinter import *
-from tkinter import messagebox
 from datetime import date
-from Admin_Module.registerLibrarianFunctionality import RegisterLibrarianFunctionality
+from tkinter import messagebox
+
+from customtkinter import *
+
+from Admin_Module.registerVendorFunctionality import RegisterVendorFunctionality
 
 try:
-    from tkcalendar import DateEntry
+    from tkcalendar import DateEntry  # pip install tkcalendar
 except ImportError:
     messagebox.showerror("Missing Dependency", "Please install tkcalendar:\n\npip install tkcalendar")
     raise SystemExit
@@ -12,18 +14,18 @@ except ImportError:
 set_appearance_mode("dark")
 
 
-class RegisterLibrarianGUI:
+class RegisterVendorGUI:
     def __init__(self, u_id):
         self.u_Id = u_id
         self.window = CTk()
-        self.window.title("Register New Librarian")
+        self.window.title("Register New Vendor")
         self.window.geometry("520x740")
         self.window.resizable(0, 0)
 
         # DB helper
-        self.db = RegisterLibrarianFunctionality(success_callback=self.show_success_screen)
+        self.db = RegisterVendorFunctionality(success_callback=self.show_success_screen)
 
-        title_label = CTkLabel(self.window, text="Register New Librarian", font=("Arial", 20))
+        title_label = CTkLabel(self.window, text="Register New Vendor", font=("Arial", 20))
         title_label.pack(pady=25)
 
         # Full name
@@ -66,7 +68,7 @@ class RegisterLibrarianGUI:
         # Register button
         self.register_button = CTkButton(
             self.window,
-            text="Register Librarian",
+            text="Register Vendor",
             width=260,
             height=40,
             command=self.register_action
@@ -102,7 +104,7 @@ class RegisterLibrarianGUI:
         dob = self.get_dob()
 
         # Register as librarian (includes DOB validation)
-        self.db.register_librarian(full_name, email, password, confirm_password, phone, address, dob)
+        self.db.register_vendor(full_name, email, password, confirm_password, phone, address, dob)
 
     def show_success_screen(self):
         # Close registration window and show success
@@ -117,10 +119,10 @@ class RegisterLibrarianGUI:
         success_window.geometry("420x300")
         success_window.resizable(0, 0)
 
-        label = CTkLabel(success_window, text="🎉 Librarian Registered!", font=("Arial", 22))
+        label = CTkLabel(success_window, text="🎉 Vendor Registered!", font=("Arial", 22))
         label.pack(pady=40)
 
-        desc = CTkLabel(success_window, text="The librarian account has been created successfully.", font=("Arial", 14))
+        desc = CTkLabel(success_window, text="The Vendor account has been created successfully.", font=("Arial", 14))
         desc.pack(pady=10)
 
         back_btn = CTkButton(success_window, text="⬅ Back to Admin Panel", width=200, height=40,
