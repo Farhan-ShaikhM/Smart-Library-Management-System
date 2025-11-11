@@ -1,4 +1,8 @@
+from datetime import date
+
 from customtkinter import *
+from tkcalendar import DateEntry
+
 from .registrationFunctionality import RegistrationFunctionality
 
 class RegistrationGUI:
@@ -22,6 +26,18 @@ class RegistrationGUI:
         self.phone_entry = CTkEntry(self.window, placeholder_text="Phone Number", width=300, height=40)
         self.phone_entry.pack(pady=10)
 
+        dob_frame = CTkFrame(self.window)
+        dob_frame.pack(pady=10)
+        CTkLabel(dob_frame, text="Date of Birth:", font=("Arial", 13)).pack(anchor="w", padx=8)
+
+        self.dob_widget = DateEntry(
+            dob_frame,
+            width=18,
+            year=date.today().year - 30,
+            date_pattern='yyyy-mm-dd'
+        )
+        self.dob_widget.pack(padx=8, pady=6)
+
         self.password_entry = CTkEntry(self.window, placeholder_text="Password", width=300, height=40, show="*")
         self.password_entry.pack(pady=10)
 
@@ -33,14 +49,22 @@ class RegistrationGUI:
 
         self.window.mainloop()
 
+    def get_dob(self):
+        """Return a date object or None"""
+        try:
+            return self.dob_widget.get_date()
+        except Exception:
+            return None
+
     def register_action(self):
         full_name = self.name_entry.get().strip()
         email = self.email_entry.get().strip()
         phone = self.phone_entry.get().strip()
         password = self.password_entry.get().strip()
         confirm_password = self.confirm_entry.get().strip()
+        dob = self.get_dob()
 
-        self.db.register_user(full_name, email, password, confirm_password, phone)
+        self.db.register_user(full_name, email, password, confirm_password, phone, dob)
 
     def show_success_screen(self):
         self.window.destroy()

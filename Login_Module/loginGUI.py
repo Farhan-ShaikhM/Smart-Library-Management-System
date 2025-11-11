@@ -68,7 +68,7 @@ class LoginGUI:
             elif role == "Librarian":
                 LibrarianGUI()
             elif role == "Admin":
-                AdminGUI()
+                AdminGUI(u_id)
         else:
             messagebox.showerror("Login Error", result)
 

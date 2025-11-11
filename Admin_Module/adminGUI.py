@@ -1,57 +1,78 @@
 # Admin_Module/adminGUI.py
 from customtkinter import *
 from tkinter import messagebox
-from Librarian_Module.librarianFunctionality import get_librarian_dashboard_data
+from Admin_Module.adminFunctionality import get_admin_stats
 
 set_appearance_mode("dark")
 
 class AdminGUI:
-    def __init__(self):
-        self.admin_name = "Admin"  # You can make this dynamic if linked to login
-        self.stats = get_librarian_dashboard_data()  # reuse same stats query for now
+    def __init__(self, u_Id=None, admin_name="Admin"):
+        """
+        u_Id is optional — you can pass the admin ID if needed.
+        admin_name is shown in the welcome label.
+        """
+        self.u_Id = u_Id
+        self.admin_name = admin_name
+        self.stats = get_admin_stats()
 
-        # ---------------- Main Window ----------------
+        # ---------------- Main window ----------------
         self.root = CTk()
-        self.root.title("🏛️ Admin Dashboard")
+        self.root.title("Admin Dashboard")
         self.root.geometry("950x600")
         self.root.resizable(0, 0)
 
-        # ---------------- Main Container ----------------
+        # ---------------- Main container ----------------
         self.main_frame = CTkFrame(self.root, corner_radius=15)
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # ---------------- Left Sidebar ----------------
+        # ---------------- Left column ----------------
         self.left_frame = CTkFrame(self.main_frame, width=250, corner_radius=15)
         self.left_frame.pack(side="left", fill="y", padx=(10, 5), pady=10)
 
-        # Profile Section
-        self.profile_frame = CTkFrame(self.left_frame, corner_radius=15)
-        self.profile_frame.pack(fill="both", padx=10, pady=(10, 10))
+        # --- Welcome section ---
+        self.welcome_frame = CTkFrame(self.left_frame, width=250, corner_radius=15)
+        self.welcome_frame.pack(fill="both", padx=10, pady=10)
 
-        self.user_logo = CTkLabel(self.profile_frame, text="🧑‍💼", font=("Arial", 100))
-        self.user_logo.pack(pady=(20, 10))
+        # Admin emoji
+        self.admin_logo = CTkLabel(
+            self.welcome_frame,
+            text="🛠",
+            font=("Arial", 100)
+        )
+        self.admin_logo.pack(pady=(20, 10))
 
+        # Centered welcome text (matches ReaderGUI)
         self.welcome_label = CTkLabel(
-            self.profile_frame,
+            self.welcome_frame,
             text=f"Welcome,\n{self.admin_name}",
             font=("Arial", 18, "bold"),
-            justify="center"
+            justify="center",
+            anchor="center"
         )
         self.welcome_label.pack(pady=(0, 10), padx=20)
 
-        # Note or Tips Section
-        self.note_frame = CTkFrame(self.left_frame, corner_radius=15)
+        # --- Info section ---
+        self.note_frame = CTkFrame(self.left_frame, width=250, corner_radius=15)
         self.note_frame.pack(fill="both", padx=10, pady=(0, 10))
 
-        CTkLabel(
+        self.note_title = CTkLabel(
             self.note_frame,
-            text="⚙️ Admin Panel\nManage vendors, librarians, and approvals.",
-            font=("Arial", 14),
-            justify="center",
-            wraplength=200
-        ).pack(pady=20, padx=20)
+            text="Admin Panel",
+            font=("Arial", 16, "bold"),
+            justify="center"
+        )
+        self.note_title.pack(pady=(10, 5))
 
-        # Logout Button
+        self.note_text = CTkLabel(
+            self.note_frame,
+            text="Manage users, librarians,\nand books using the options on the right.",
+            font=("Arial", 13),
+            justify="center",
+            wraplength=220
+        )
+        self.note_text.pack(pady=(0, 12), padx=10)
+
+        # --- Logout button ---
         self.logout_button = CTkButton(
             self.left_frame,
             text="⬅️ Logout",
@@ -59,125 +80,159 @@ class AdminGUI:
             width=150,
             height=40,
             corner_radius=15,
-            command=self.logout
+            command=lambda: self.logout(self.root)
         )
-        self.logout_button.pack(pady=20, padx=20, fill="x")
+        self.logout_button.pack(pady=10, padx=20, fill="x")
 
-        # ---------------- Right Section ----------------
+        # ---------------- Right area ----------------
         self.right_frame = CTkFrame(self.main_frame, corner_radius=15)
         self.right_frame.pack(side="left", fill="both", expand=True, padx=(5, 10), pady=10)
 
-        # -------- Dashboard Stats (Top Cards) --------
+        # -------- Stats frames at top --------
         self.stats_frame = CTkFrame(self.right_frame, corner_radius=15)
         self.stats_frame.pack(pady=(10, 20))
 
-        stats_container = CTkFrame(self.stats_frame, corner_radius=0)
-        stats_container.pack()
+        card_size = 150
+        self.stats_container = CTkFrame(self.stats_frame, corner_radius=0)
+        self.stats_container.pack()
 
-        self.create_stat_card(stats_container, "📚 Total Books", self.stats.get("total_books", 0)).pack(side="left", padx=10)
-        self.create_stat_card(stats_container, "👥 Total Readers", self.stats.get("total_readers", 0)).pack(side="left", padx=10)
-        self.create_stat_card(stats_container, "📦 Active Loans", self.stats.get("active_loans", 0)).pack(side="left", padx=10)
-        self.create_stat_card(stats_container, "⏰ Overdue Loans", self.stats.get("overdue_loans", 0)).pack(side="left", padx=10)
+        # --- Card 1: Overall Books Borrowed ---
+        self.books_borrowed_card = CTkFrame(self.stats_container, width=card_size, height=card_size, corner_radius=15)
+        self.books_borrowed_card.pack(side="left", padx=10)
+        self.books_borrowed_card.pack_propagate(False)
+        self.books_borrowed_label = CTkLabel(
+            self.books_borrowed_card,
+            text=f"Books Borrowed:\n{self.stats.get('overall_books_borrowed', 0)}",
+            font=("Arial", 16),
+            justify="center",
+            anchor="center"
+        )
+        self.books_borrowed_label.pack(expand=True, padx=10, pady=10)
 
-        # -------- Quick Action Buttons --------
+        # --- Card 2: Total Fines (Profit) ---
+        self.fines_card = CTkFrame(self.stats_container, width=card_size, height=card_size, corner_radius=15)
+        self.fines_card.pack(side="left", padx=10)
+        self.fines_card.pack_propagate(False)
+        self.fines_label = CTkLabel(
+            self.fines_card,
+            text=f"Total Fines (₹):\n{self.stats.get('overall_total_fines', 0.0):.2f}",
+            font=("Arial", 16),
+            justify="center",
+            anchor="center"
+        )
+        self.fines_label.pack(expand=True, padx=10, pady=10)
+
+        # --- Card 3: Active Loans ---
+        self.active_loans_card = CTkFrame(self.stats_container, width=card_size, height=card_size, corner_radius=15)
+        self.active_loans_card.pack(side="left", padx=10)
+        self.active_loans_card.pack_propagate(False)
+        self.active_loans_label = CTkLabel(
+            self.active_loans_card,
+            text=f"Active Loans:\n{self.stats.get('overall_active_loans', 0)}",
+            font=("Arial", 16),
+            justify="center",
+            anchor="center"
+        )
+        self.active_loans_label.pack(expand=True, padx=10, pady=10)
+
+        # -------- Buttons frame (actions) --------
         self.buttons_frame = CTkFrame(self.right_frame, corner_radius=15)
         self.buttons_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        CTkLabel(
-            self.buttons_frame,
-            text="⚡ Quick Actions:",
-            font=("Arial", 18, "bold")
-        ).pack(pady=15)
 
         btn_width = 300
         btn_height = 60
 
-        CTkButton(
+        self.action_label = CTkLabel(
             self.buttons_frame,
-            text="📋 Manage Vendors",
+            text="⚡ Quick Actions:",
             font=("Arial", 18, "bold"),
-            width=btn_width,
-            height=btn_height,
-            command=self.manage_vendors
-        ).pack(pady=10)
+            justify="center",
+            anchor="center"
+        )
+        self.action_label.pack(side="top", padx=10, pady=10)
 
-        CTkButton(
+        # --- Buttons ---
+        self.manage_users_btn = CTkButton(
             self.buttons_frame,
-            text="📦 Create Supply Batch",
+            text="👥 Manage Users",
             font=("Arial", 18, "bold"),
             width=btn_width,
             height=btn_height,
-            command=self.create_supply_batch
-        ).pack(pady=10)
+            command=self.open_manage_users
+        )
+        self.manage_users_btn.pack(pady=20)
 
-        CTkButton(
+        self.register_librarian_btn = CTkButton(
             self.buttons_frame,
-            text="✅ Approve Supply Batches",
+            text="➕ Register New Librarian",
             font=("Arial", 18, "bold"),
             width=btn_width,
             height=btn_height,
-            command=self.approve_batches
-        ).pack(pady=10)
+            command=self.open_register_librarian
+        )
+        self.register_librarian_btn.pack(pady=20)
 
-        CTkButton(
+        self.register_vendor_btn = CTkButton(
             self.buttons_frame,
-            text="📊 View Supply History",
+            text="➕ Register New Vendor",
             font=("Arial", 18, "bold"),
             width=btn_width,
             height=btn_height,
-            command=self.supply_history
-        ).pack(pady=10)
+            command=self.open_vendor_librarian
+        )
+        self.register_vendor_btn.pack(pady=20)
 
-        # Optional Librarian Access
-        CTkButton(
-            self.buttons_frame,
-            text="👩‍🏫 Librarian Dashboard",
-            font=("Arial", 18, "bold"),
-            width=btn_width,
-            height=btn_height,
-            command=self.open_librarian_dashboard
-        ).pack(pady=10)
+        # self.manage_books_btn = CTkButton(
+        #     self.buttons_frame,
+        #     text="📚 Manage Books",
+        #     font=("Arial", 18, "bold"),
+        #     width=btn_width,
+        #     height=btn_height,
+        #     command=self.open_manage_books
+        # )
+        # self.manage_books_btn.pack(pady=20)
+
+        # --- Footer ---
+        self.footer_frame = CTkFrame(self.right_frame)
+        self.footer_frame.pack(fill="x", padx=10, pady=(0, 8))
+        CTkButton(self.footer_frame, text="Refresh Stats", width=140, command=self.refresh_stats).pack(side="left", padx=(0, 8))
+        CTkButton(self.footer_frame, text="Close", width=140, command=self.root.destroy).pack(side="right", padx=(8, 0))
 
         self.root.mainloop()
 
-    # ---------------- Helper: Stat Card ----------------
-    def create_stat_card(self, parent, title, value):
-        frame = CTkFrame(parent, width=150, height=150, corner_radius=15)
-        frame.pack_propagate(False)
-        CTkLabel(frame, text=title, font=("Arial", 16, "bold")).pack(pady=(10, 0))
-        CTkLabel(frame, text=str(value), font=("Arial", 24, "bold"), text_color="#00FFAA").pack(pady=(10, 10))
-        return frame
+    # ---------------- Action handlers ----------------
+    def refresh_stats(self):
+        self.stats = get_admin_stats()
+        self.books_borrowed_label.configure(text=f"Books Borrowed:\n{self.stats.get('overall_books_borrowed', 0)}")
+        self.fines_label.configure(text=f"Total Fines (₹):\n{self.stats.get('overall_total_fines', 0.0):.2f}")
+        self.active_loans_label.configure(text=f"Active Loans:\n{self.stats.get('overall_active_loans', 0)}")
 
-    # ---------------- Navigation Buttons ----------------
-    def manage_vendors(self):
-        from Vendor_Module.vendorGUI import VendorGUI
-        self.root.destroy()
-        VendorGUI()
+    def open_manage_users(self):
+            from Admin_Module.manageUsersGUI import ManageUsersGUI
+            self.root.destroy()
+            ManageUsersGUI(self.u_Id)
 
-    def create_supply_batch(self):
-        from Vendor_Module.supplyBatchGUI import SupplyBatchGUI
-        self.root.destroy()
-        SupplyBatchGUI(opened_by="Admin")
+    def open_register_librarian(self):
+            from Admin_Module.registerLibrarianGUI import RegisterLibrarianGUI
+            self.root.destroy()
+            RegisterLibrarianGUI(self.u_Id)
 
-    def approve_batches(self):
-        from Vendor_Module.batchApprovalGUI import BatchApprovalGUI
-        self.root.destroy()
-        BatchApprovalGUI()
+    # def open_manage_books(self):
+    #         from Admin_Module.manageBooksGUI import ManageBooksGUI
+    #         self.root.destroy()
+    #         ManageBooksGUI(self.u_Id)
 
-    def supply_history(self):
-        from Vendor_Module.supplyHistoryGUI import SupplyHistoryGUI
+    def open_vendor_librarian(self):
+        from Admin_Module.registerVendorGUI import RegisterVendorGUI
         self.root.destroy()
-        SupplyHistoryGUI()
+        RegisterVendorGUI(self.u_Id)
 
-    def open_librarian_dashboard(self):
-        from Librarian_Module.librarianGUI import LibrarianGUI
-        self.root.destroy()
-        LibrarianGUI()
-
-    def logout(self):
-        from Login_Module.loginGUI import LoginGUI
-        self.root.destroy()
-        messagebox.showinfo("Logout", "You have been logged out successfully.")
-        root = CTk()
-        LoginGUI(root)
-        root.mainloop()
+    def logout(self, window):
+        try:
+            from Login_Module.loginGUI import LoginGUI
+            window.destroy()
+            root = CTk()
+            app = LoginGUI(root)
+            root.mainloop()
+        except Exception as e:
+            messagebox.showerror("Logout Error", f"Could not logout: {e}")
