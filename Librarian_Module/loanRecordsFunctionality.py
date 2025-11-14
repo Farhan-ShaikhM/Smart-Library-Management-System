@@ -1,110 +1,132 @@
 # Librarian_Module/loanRecordsFunctionality.py
 import mysql.connector
 from mysql.connector import Error
-from datetime import datetime, date
+from datetime import date, timedelta
 
-# ---------------- Database Connection ----------------
+
 def get_connection():
     try:
-        conn = mysql.connector.connect(
+        return mysql.connector.connect(
             host="localhost",
-            user="root",  # change if needed
-            password="",  # change if needed
+            user="root",
+            password="",
             database="slms_db"
         )
-        return conn
     except Error as e:
-        print("Error connecting to DB:", e)
+        print("DB Connection Error:", e)
         return None
 
 
-# ---------------- Fetch all loan records ----------------
-def get_all_loans(status_filter=None):
+# ---------- Fetch All Loan Records ----------
+def get_all_loans(filter_status="All"):
     conn = get_connection()
-    if conn is None:
+    if not conn:
         return []
 
-    cursor = conn.cursor(dictionary=True)
-    query = """
-        SELECT lr.loan_id, lr.u_Id, lr.b_Id, lr.issue_date, lr.due_date, lr.return_date, 
-               lr.loan_status, lr.fine_amount, b.title, b.author, b.daily_late_fine,
-               u.name AS reader_name
-        FROM loan_record lr
-        JOIN books b ON lr.b_Id = b.b_Id
-        JOIN users u ON lr.u_Id = u.u_Id
-    """
-    if status_filter and status_filter != "All" and status_filter != "Overdue":
-        query += " WHERE lr.loan_status = %s"
-        cursor.execute(query, (status_filter,))
-    else:
+    try:
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT
+                lr.loan_id,
+                u.name AS reader_name,
+                b.title,
+                b.author,
+                lr.issue_date,
+                lr.due_date,
+                lr.return_date,
+                lr.loan_status
+            FROM loan_record lr
+            JOIN users u ON lr.u_Id = u.u_Id
+            JOIN books b ON lr.b_Id = b.b_Id
+        """
+
+        # Filter logic
+        if filter_status == "Active":
+            query += " WHERE lr.loan_status = 'Active'"
+        elif filter_status == "Returned":
+            query += " WHERE lr.loan_status LIKE 'Returned%'"
+        elif filter_status == "Overdue":
+            query += " WHERE lr.loan_status = 'Active' AND lr.due_date < CURDATE()"
+        elif filter_status == "Lost":
+            query += " WHERE lr.loan_status = 'Lost'"
+
+        query += " ORDER BY lr.issue_date DESC;"
         cursor.execute(query)
-
-    loans = cursor.fetchall()
-    conn.close()
-    return loans
-
-
-# ---------------- Fetch overdue loans ----------------
-def get_overdue_loans():
-    conn = get_connection()
-    if conn is None:
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
+    except Error as e:
+        print("Error fetching loan records:", e)
+        conn.close()
         return []
 
-    cursor = conn.cursor(dictionary=True)
-    query = """
-        SELECT lr.loan_id, lr.u_Id, lr.b_Id, lr.issue_date, lr.due_date, lr.loan_status,
-               b.title, u.name AS reader_name, b.daily_late_fine
-        FROM loan_record lr
-        JOIN books b ON lr.b_Id = b.b_Id
-        JOIN users u ON lr.u_Id = u.u_Id
-        WHERE lr.loan_status='Active' AND lr.due_date < CURDATE()
-    """
-    cursor.execute(query)
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
 
-
-# ---------------- Update loan status (with optional fine) ----------------
-def update_loan_status(loan_id, new_status, fine=0.0):
+# ---------- Issue a Book ----------
+def issue_book(u_Id, b_Id, days=15):
     conn = get_connection()
-    if conn is None:
+    if not conn:
         return False
 
-    cursor = conn.cursor()
     try:
-        return_date = datetime.now()
+        cursor = conn.cursor()
+        issue_date = date.today()
+        due_date = issue_date + timedelta(days=days)
 
+        # Decrease available stock
+        cursor.execute(
+            "UPDATE books SET available_stock = available_stock - 1 WHERE b_Id=%s AND available_stock > 0;",
+            (b_Id,)
+        )
+        if cursor.rowcount == 0:
+            raise Exception("No available stock!")
+
+        # Insert loan record
         cursor.execute("""
-            UPDATE loan_record
-            SET loan_status=%s, return_date=%s, fine_amount=%s
-            WHERE loan_id=%s
-        """, (new_status, return_date, fine, loan_id))
+            INSERT INTO loan_record (u_Id, b_Id, issue_date, due_date, loan_status)
+            VALUES (%s, %s, %s, %s, 'Active');
+        """, (u_Id, b_Id, issue_date, due_date))
 
         conn.commit()
         conn.close()
         return True
     except Error as e:
-        print("Error updating loan status:", e)
+        print("Error issuing book:", e)
         conn.rollback()
         conn.close()
         return False
 
 
-# ---------------- Increment available stock on book return ----------------
-def increment_book_stock(b_Id):
+# ---------- Mark as Returned ----------
+def mark_as_returned(loan_id):
     conn = get_connection()
-    if conn is None:
+    if not conn:
         return False
 
-    cursor = conn.cursor()
     try:
-        cursor.execute("UPDATE books SET available_stock = available_stock + 1 WHERE b_Id = %s", (b_Id,))
+        cursor = conn.cursor()
+        # Fetch due_date
+        cursor.execute("SELECT b_Id, due_date FROM loan_record WHERE loan_id=%s", (loan_id,))
+        record = cursor.fetchone()
+        if not record:
+            raise Exception("Loan not found!")
+
+        b_Id, due_date = record
+        today = date.today()
+        status = "Returned - On Time" if today <= due_date else "Returned - Late"
+
+        cursor.execute("""
+            UPDATE loan_record
+            SET return_date=%s, loan_status=%s
+            WHERE loan_id=%s;
+        """, (today, status, loan_id))
+
+        # Increase stock
+        cursor.execute("UPDATE books SET available_stock = available_stock + 1 WHERE b_Id=%s;", (b_Id,))
         conn.commit()
         conn.close()
         return True
     except Error as e:
-        print("Error incrementing book stock:", e)
+        print("Error marking return:", e)
         conn.rollback()
         conn.close()
         return False

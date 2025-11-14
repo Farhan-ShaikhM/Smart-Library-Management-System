@@ -3,152 +3,133 @@ from customtkinter import *
 from tkinter import messagebox
 from datetime import datetime
 from Librarian_Module.loanRecordsFunctionality import (
-    get_all_loans,
-    update_loan_status,
-    get_overdue_loans,
-    increment_book_stock,
+    get_all_loans, issue_book, mark_as_returned
 )
 
 set_appearance_mode("dark")
 
+
 class LoanRecordsGUI:
-    def __init__(self):
+    def __init__(self, u_Id):
+        self.u_Id = u_Id
         self.root = CTk()
-        self.root.title("🧾 Loan Records Management")
+        self.root.title("🧾 Loan Records")
         self.root.geometry("1000x650")
         self.root.resizable(False, False)
 
-        # ---------------- Title ----------------
-        CTkLabel(self.root, text="📚 Loan Records Management", font=("Arial", 22, "bold")).pack(pady=15)
+        CTkLabel(self.root, text="📘 Manage Loan Records", font=("Arial", 24, "bold")).pack(pady=20)
 
-        # ---------------- Filter + Buttons ----------------
-        control_frame = CTkFrame(self.root)
-        control_frame.pack(fill="x", padx=20, pady=(0, 10))
+        # --------- Top Buttons ---------
+        top_frame = CTkFrame(self.root)
+        top_frame.pack(fill="x", padx=20, pady=10)
 
         self.filter_var = StringVar(value="All")
         filter_menu = CTkOptionMenu(
-            control_frame,
+            top_frame,
             variable=self.filter_var,
-            values=["All", "Active", "Overdue", "Returned - On Time", "Returned - Late", "Lost"],
-            width=200,
-            command=self.filter_loans
+            values=["All", "Active", "Overdue", "Returned", "Lost"],
+            command=lambda _: self.load_loans()
         )
         filter_menu.pack(side="left", padx=10)
 
-        CTkButton(control_frame, text="🔄 Refresh", width=120, command=self.refresh_loans).pack(side="left", padx=10)
-        CTkButton(control_frame, text="⬅ Back", width=120, command=self.go_back).pack(side="right", padx=10)
+        CTkButton(top_frame, text="➕ Issue New Book", width=160, command=self.issue_window).pack(side="left", padx=10)
+        CTkButton(top_frame, text="🔄 Refresh", width=120, command=self.load_loans).pack(side="left", padx=10)
+        CTkButton(top_frame, text="⬅ Back", width=120, command=self.go_back).pack(side="right", padx=10)
 
-        # ---------------- Scrollable Area ----------------
-        self.scroll_frame = CTkScrollableFrame(self.root, width=950, height=450, corner_radius=15)
+        # --------- Loan List ---------
+        self.scroll_frame = CTkScrollableFrame(self.root, width=950, height=450)
         self.scroll_frame.pack(padx=20, pady=10, fill="both", expand=True)
 
-        # ---------------- Action Buttons ----------------
-        action_frame = CTkFrame(self.root)
-        action_frame.pack(pady=10)
-        CTkButton(action_frame, text="✅ Mark Returned", width=180, command=self.mark_returned).grid(row=0, column=0, padx=10)
-        CTkButton(action_frame, text="❌ Mark Lost", width=180, command=self.mark_lost).grid(row=0, column=1, padx=10)
-
-        # ---------------- Load Data ----------------
-        self.selected_loan = None
-        self.loans = []
-        self.refresh_loans()
-
+        self.load_loans()
         self.root.mainloop()
 
-    # ---------------- Refresh Loan List ----------------
-    def refresh_loans(self):
+    # --------- Load Loans ---------
+    def load_loans(self):
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
 
-        selected_filter = self.filter_var.get()
-        if selected_filter == "Overdue":
-            self.loans = get_overdue_loans()
-        else:
-            self.loans = get_all_loans(selected_filter)
+        filter_choice = self.filter_var.get()
+        loans = get_all_loans(filter_choice)
 
-        if not self.loans:
-            CTkLabel(self.scroll_frame, text="No loan records found.", font=("Arial", 16, "italic")).pack(pady=20)
+        if not loans:
+            CTkLabel(self.scroll_frame, text="No records found.", font=("Arial", 14, "italic")).pack(pady=20)
             return
 
-        for loan in self.loans:
-            issue_date = loan["issue_date"].strftime("%Y-%m-%d") if isinstance(loan["issue_date"], datetime) else str(loan["issue_date"])
-            due_date = loan["due_date"].strftime("%Y-%m-%d") if isinstance(loan["due_date"], datetime) else str(loan["due_date"])
-            return_date = loan["return_date"].strftime("%Y-%m-%d") if loan["return_date"] else "—"
+        for l in loans:
+            issue = l["issue_date"].strftime("%Y-%m-%d")
+            due = l["due_date"].strftime("%Y-%m-%d")
+            ret = l["return_date"].strftime("%Y-%m-%d") if l["return_date"] else "—"
 
-            btn_text = (
-                f"{loan['reader_name']} borrowed '{loan['title']}' by {loan['author']}\n"
-                f"Issue: {issue_date} | Due: {due_date} | Return: {return_date} | "
-                f"Fine: ₹{loan['fine_amount']:.2f} | Status: {loan['loan_status']}"
-            )
+            text = (f"👤 {l['reader_name']} | 📖 {l['title']} by {l['author']}\n"
+                    f"Issue: {issue} | Due: {due} | Return: {ret} | Status: {l['loan_status']}")
 
-            btn = CTkButton(
-                self.scroll_frame,
-                text=btn_text,
-                width=900,
-                height=65,
-                anchor="w",
-                font=("Arial", 14),
-                command=lambda l=loan: self.select_loan(l)
-            )
-            btn.pack(pady=6, padx=10)
+            frame = CTkFrame(self.scroll_frame, corner_radius=10)
+            frame.pack(fill="x", pady=6, padx=10)
 
-    # ---------------- Select Loan ----------------
-    def select_loan(self, loan):
-        self.selected_loan = loan
-        messagebox.showinfo("Selected", f"Selected Loan:\n'{loan['title']}' by {loan['author']}'\nReader: {loan['reader_name']}")
+            CTkLabel(frame, text=text, font=("Arial", 14), justify="left").pack(side="left", padx=10)
+            if l["loan_status"] == "Active":
+                CTkButton(frame, text="✅ Mark Returned", width=150,
+                          command=lambda lid=l["loan_id"]: self.return_book(lid)).pack(side="right", padx=10)
 
-    # ---------------- Mark Returned ----------------
-    def mark_returned(self):
-        if not self.selected_loan:
-            messagebox.showwarning("Warning", "Select a loan first.")
-            return
-
-        confirm = messagebox.askyesno("Confirm", "Mark this loan as Returned?")
+    # --------- Mark as Returned ---------
+    def return_book(self, loan_id):
+        confirm = messagebox.askyesno("Confirm", "Mark this book as returned?")
         if not confirm:
             return
 
-        # Fine Calculation
-        due_date = self.selected_loan["due_date"]
-        if isinstance(due_date, str):
-            due_date = datetime.strptime(due_date, "%Y-%m-%d").date()
-
-        days_overdue = max((datetime.now().date() - due_date).days, 0)
-        daily_fine = float(self.selected_loan.get("daily_late_fine", 10.0))
-        fine = days_overdue * daily_fine
-        status = "Returned - On Time" if days_overdue == 0 else "Returned - Late"
-
-        success = update_loan_status(self.selected_loan["loan_id"], status, fine)
-        if success:
-            increment_book_stock(self.selected_loan["b_Id"])  # return stock
-            messagebox.showinfo("Success", f"Book marked as {status}.\nFine: ₹{fine:.2f}")
-            self.refresh_loans()
+        if mark_as_returned(loan_id):
+            messagebox.showinfo("Success", "Book marked as returned!")
+            self.load_loans()
         else:
             messagebox.showerror("Error", "Failed to update loan status.")
 
-    # ---------------- Mark Lost ----------------
-    def mark_lost(self):
-        if not self.selected_loan:
-            messagebox.showwarning("Warning", "Select a loan first.")
+    # --------- Issue Book Window ---------
+    def issue_window(self):
+        from Librarian_Module.loanRecordsFunctionality import get_connection
+        conn = get_connection()
+        if not conn:
             return
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT u_Id, name FROM users WHERE role='Reader';")
+        readers = cursor.fetchall()
+        cursor.execute("SELECT b_Id, title FROM books WHERE available_stock > 0;")
+        books = cursor.fetchall()
+        conn.close()
 
-        confirm = messagebox.askyesno("Confirm", "Mark this book as Lost?")
-        if not confirm:
-            return
+        win = CTkToplevel(self.root)
+        win.title("Issue New Book")
+        win.geometry("400x400")
 
-        fine = float(self.selected_loan.get("fine_amount", 0)) or 0.0
-        success = update_loan_status(self.selected_loan["loan_id"], "Lost", fine)
-        if success:
-            messagebox.showinfo("Success", "Book marked as Lost successfully.")
-            self.refresh_loans()
-        else:
-            messagebox.showerror("Error", "Failed to mark as lost.")
+        CTkLabel(win, text="Select Reader:", font=("Arial", 14)).pack(pady=(15, 5))
+        reader_var = StringVar(value=f"{readers[0]['u_Id']} - {readers[0]['name']}" if readers else "")
+        reader_menu = CTkOptionMenu(win, variable=reader_var,
+                                    values=[f"{r['u_Id']} - {r['name']}" for r in readers])
+        reader_menu.pack(pady=5)
 
-    # ---------------- Filter ----------------
-    def filter_loans(self, *args):
-        self.refresh_loans()
+        CTkLabel(win, text="Select Book:", font=("Arial", 14)).pack(pady=(15, 5))
+        book_var = StringVar(value=f"{books[0]['b_Id']} - {books[0]['title']}" if books else "")
+        book_menu = CTkOptionMenu(win, variable=book_var,
+                                  values=[f"{b['b_Id']} - {b['title']}" for b in books])
+        book_menu.pack(pady=5)
 
-    # ---------------- Back ----------------
+        def issue_now():
+            if not readers or not books:
+                messagebox.showerror("Error", "No readers or books available.")
+                return
+            u_Id = int(reader_var.get().split(" - ")[0])
+            b_Id = int(book_var.get().split(" - ")[0])
+
+            if issue_book(u_Id, b_Id):
+                messagebox.showinfo("Success", "Book issued successfully!")
+                win.destroy()
+                self.load_loans()
+            else:
+                messagebox.showerror("Error", "Failed to issue book.")
+
+        CTkButton(win, text="💾 Issue", width=150, command=issue_now).pack(pady=25)
+
+    # --------- Back ---------
     def go_back(self):
         from Librarian_Module.librarianGUI import LibrarianGUI
         self.root.destroy()
-        LibrarianGUI()
+        LibrarianGUI(self.u_Id)

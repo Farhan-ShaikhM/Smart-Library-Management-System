@@ -1,3 +1,4 @@
+# loginFunctionality.py
 import mysql.connector
 from mysql.connector import Error
 import re
@@ -12,7 +13,7 @@ class DBAuth:
                 database=database
             )
             if self.conn.is_connected():
-                print("Connected to MySQL database")
+                print("✅ Connected to MySQL database")
         except Error as e:
             print(f"Error connecting to MySQL: {e}")
             self.conn = None
@@ -33,7 +34,7 @@ class DBAuth:
 
         try:
             cursor = self.conn.cursor(dictionary=True)
-            query = "SELECT * FROM Users WHERE email=%s AND password=%s"
+            query = "SELECT * FROM users WHERE email=%s AND password=%s"
             cursor.execute(query, (email, password))
             user = cursor.fetchone()
             cursor.close()
