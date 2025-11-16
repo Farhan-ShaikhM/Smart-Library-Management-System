@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 26, 2025 at 09:34 AM
+-- Generation Time: Nov 16, 2025 at 11:27 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -60,6 +60,32 @@ INSERT INTO `books` (`b_Id`, `title`, `author`, `main_genre`, `sub_genre`, `lang
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `book_request`
+--
+
+CREATE TABLE `book_request` (
+  `request_id` int(11) NOT NULL,
+  `librarian_id` int(11) NOT NULL,
+  `vendor_id` int(11) NOT NULL,
+  `book_title` varchar(255) NOT NULL,
+  `author` varchar(255) DEFAULT NULL,
+  `quantity` int(11) NOT NULL CHECK (`quantity` > 0),
+  `status` enum('Pending','Approved','Rejected','Supplied') DEFAULT 'Pending',
+  `request_date` date DEFAULT curdate(),
+  `supply_date` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `book_request`
+--
+
+INSERT INTO `book_request` (`request_id`, `librarian_id`, `vendor_id`, `book_title`, `author`, `quantity`, `status`, `request_date`, `supply_date`) VALUES
+(1, 101, 2, 'It Ends with Us', 'Colleen Hoover', 10, 'Supplied', '2025-11-12', '2025-11-13'),
+(2, 101, 2, '1984', 'George Orwell', 15, 'Pending', '2025-11-14', NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `librarian`
 --
 
@@ -94,7 +120,7 @@ CREATE TABLE `loan_record` (
   `return_date` timestamp NULL DEFAULT NULL,
   `fine_amount` decimal(6,2) DEFAULT 0.00 CHECK (`fine_amount` >= 0.00),
   `loan_status` enum('Active','Returned - On Time','Returned - Late','Lost') NOT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `loan_record`
@@ -178,7 +204,7 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `date_of_birth` date DEFAULT NULL,
-  `role` enum('Reader','Librarian','Admin') NOT NULL
+  `role` enum('Reader','Librarian','Admin','Vendor') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -192,7 +218,32 @@ INSERT INTO `users` (`u_Id`, `name`, `email`, `password`, `date_of_birth`, `role
 (4, 'Frank Miller', 'frank.miller@gmail.com', 'FrankPass001', '1983-12-05', 'Reader'),
 (5, 'Adiy Rahman', 'adiy.rahman@gmail.com', 'AdminPass123', '2004-04-14', 'Admin'),
 (101, 'Sarah Thompson', 'sarah.thompson@gmail.com', 'LibPass001', '1985-03-12', 'Librarian'),
-(102, 'Michael Brown', 'michael.brown@gmail.com', 'LibPass002', '1978-08-25', 'Librarian');
+(102, 'Michael Brown', 'michael.brown@gmail.com', 'LibPass002', '1978-08-25', 'Librarian'),
+(111, 'Penguin Vendor', 'vendor1@penguin.com', 'VendorPass1', '1990-01-10', 'Vendor'),
+(112, 'HarperCollins Vendor', 'vendor2@harpercollins.com', 'VendorPass2', '1985-03-14', 'Vendor');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vendor`
+--
+
+CREATE TABLE `vendor` (
+  `vendor_id` int(11) NOT NULL,
+  `u_Id` int(11) NOT NULL,
+  `company` varchar(255) NOT NULL,
+  `vendor_remark` text DEFAULT NULL,
+  `phone` varchar(15) DEFAULT NULL,
+  `date_joined` date DEFAULT curdate()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `vendor`
+--
+
+INSERT INTO `vendor` (`vendor_id`, `u_Id`, `company`, `vendor_remark`, `phone`, `date_joined`) VALUES
+(1, 111, 'Penguin Publishers', 'Leading supplier of English novels', '8887776665', '2025-11-12'),
+(2, 112, 'HarperCollins Distributors', 'Specializes in academic and fiction books', '7778889994', '2025-11-12');
 
 --
 -- Indexes for dumped tables
@@ -203,6 +254,14 @@ INSERT INTO `users` (`u_Id`, `name`, `email`, `password`, `date_of_birth`, `role
 --
 ALTER TABLE `books`
   ADD PRIMARY KEY (`b_Id`);
+
+--
+-- Indexes for table `book_request`
+--
+ALTER TABLE `book_request`
+  ADD PRIMARY KEY (`request_id`),
+  ADD KEY `librarian_id` (`librarian_id`),
+  ADD KEY `vendor_id` (`vendor_id`);
 
 --
 -- Indexes for table `librarian`
@@ -240,6 +299,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `vendor`
+--
+ALTER TABLE `vendor`
+  ADD PRIMARY KEY (`vendor_id`),
+  ADD KEY `u_Id` (`u_Id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -250,20 +316,39 @@ ALTER TABLE `books`
   MODIFY `b_Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `book_request`
+--
+ALTER TABLE `book_request`
+  MODIFY `request_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `loan_record`
 --
 ALTER TABLE `loan_record`
-  MODIFY `loan_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `loan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `u_Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `u_Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
+
+--
+-- AUTO_INCREMENT for table `vendor`
+--
+ALTER TABLE `vendor`
+  MODIFY `vendor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `book_request`
+--
+ALTER TABLE `book_request`
+  ADD CONSTRAINT `book_request_ibfk_1` FOREIGN KEY (`librarian_id`) REFERENCES `librarian` (`u_Id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `book_request_ibfk_2` FOREIGN KEY (`vendor_id`) REFERENCES `vendor` (`vendor_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `librarian`
@@ -291,6 +376,12 @@ ALTER TABLE `personal_rating`
 --
 ALTER TABLE `reader`
   ADD CONSTRAINT `reader_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `users` (`u_Id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `vendor`
+--
+ALTER TABLE `vendor`
+  ADD CONSTRAINT `vendor_ibfk_1` FOREIGN KEY (`u_Id`) REFERENCES `users` (`u_Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
