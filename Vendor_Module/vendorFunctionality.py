@@ -113,3 +113,29 @@ def get_vendor_by_user_id(u_Id):
         conn.close()
         return None
 
+# ---------------- Get Vendor Details ---------------
+
+def get_vendor_details(vendor_id):
+    conn = get_connection()
+    if not conn:
+        return None
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM vendor WHERE vendor_id = %s", (vendor_id,))
+        row = cursor.fetchone()
+        conn.close()
+        return row
+    except Exception as e:
+        print("Error fetching vendor details:", e)
+        conn.close()
+        return None
+
+
+def open_supply_history(self):
+    from Vendor_Module.supplyHistoryGUI import SupplyHistoryGUI
+
+    # Open new window FIRST
+    SupplyHistoryGUI(self.u_Id, self.vendor_id)
+
+    # Then close vendor window safely
+    self.root.destroy()
