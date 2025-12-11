@@ -68,19 +68,17 @@ class LoginGUI:
             if role == "Reader":
                 ReaderGUI(u_id)
             elif role == "Librarian":
-                LibrarianGUI()
                 LibrarianGUI(u_id)
 
             # ---------------- ADMIN ----------------
             elif role == "Admin":
-                AdminGUI()
                 AdminGUI(u_id)
 
             # ---------------- VENDOR ----------------
             elif role == "Vendor":
                 vendor = get_vendor_by_user_id(u_id)
                 if vendor:
-                    VendorGUI(u_id, vendor["vendor_id"])  # ✅ pass both user ID and vendor ID
+                    VendorGUI(u_id, vendor["vendor_id"])
                 else:
                     messagebox.showerror("Error", "No linked vendor record found for this user.")
 
