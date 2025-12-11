@@ -5,6 +5,8 @@ from Registration_Module.registrationGUI import RegistrationGUI
 from Reader_Module.readerGUI import ReaderGUI
 from Librarian_Module.librarianGUI import LibrarianGUI
 from Admin_Module.adminGUI import AdminGUI
+from Vendor_Module.vendorGUI import VendorGUI
+from Vendor_Module.vendorFunctionality import get_vendor_by_user_id
 
 set_appearance_mode("dark")
 
@@ -67,8 +69,25 @@ class LoginGUI:
                 ReaderGUI(u_id)
             elif role == "Librarian":
                 LibrarianGUI()
+                LibrarianGUI(u_id)
+
+            # ---------------- ADMIN ----------------
             elif role == "Admin":
                 AdminGUI()
+                AdminGUI(u_id)
+
+            # ---------------- VENDOR ----------------
+            elif role == "Vendor":
+                vendor = get_vendor_by_user_id(u_id)
+                if vendor:
+                    VendorGUI(u_id, vendor["vendor_id"])  # ✅ pass both user ID and vendor ID
+                else:
+                    messagebox.showerror("Error", "No linked vendor record found for this user.")
+
+            # ---------------- UNKNOWN ROLE ----------------
+            else:
+                messagebox.showerror("Error", f"Unknown user role: {role}")
+
         else:
             messagebox.showerror("Login Error", result)
 

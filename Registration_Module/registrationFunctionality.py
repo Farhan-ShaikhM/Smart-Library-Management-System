@@ -26,7 +26,7 @@ class RegistrationFunctionality:
     def validate_phone(self, phone):
         return re.fullmatch(r'\d{10}', phone) is not None
 
-    def register_user(self, full_name, email, password, confirm_password, phone):
+    def register_user(self, full_name, email, password, confirm_password, phone, dob):
         """Register new user and insert into both Users and Reader tables"""
         if not all([full_name, email, password, confirm_password, phone]):
             messagebox.showerror("Error", "All fields are required!")
@@ -58,9 +58,9 @@ class RegistrationFunctionality:
 
             # Insert into Users table
             cursor.execute("""
-                INSERT INTO Users (name, email, password, role)
-                VALUES (%s, %s, %s, %s)
-            """, (full_name, email, password, "Reader"))
+                INSERT INTO Users (name, email, password, role, date_of_birth)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (full_name, email, password, "Reader", dob))
             self.conn.commit()
 
             # Fetch u_Id of new user
